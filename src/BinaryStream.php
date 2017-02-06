@@ -19,7 +19,7 @@
  *
 */
 
-namespace pocketmine\utils;
+namespace pocketmine\binaryutils;
 
 #include <rules/DataPacket.h>
 

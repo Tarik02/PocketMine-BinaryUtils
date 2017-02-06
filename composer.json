@@ -1,5 +1,5 @@
 {
-   "name": "pocketmine/binary-utils",
+   "name": "pocketmine/binaryutils",
    "description": "A library for working with binary strings in PHP",
    "type": "library",
    "license": "LGPL-3.0",
@@ -10,7 +10,7 @@
    },
    "autoload": {
       "psr-4": {
-         "pocketmine\\utils\\": "src/"
+         "pocketmine\\binaryutils\\": "src/"
       }
    }
 }
