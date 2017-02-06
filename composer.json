@@ -1,0 +1,8 @@
+{
+    "name": "pocketmine/binary-utils",
+    "description": "A library for working with binary strings in PHP",
+    "type": "library",
+    "license": "LGPL-3.0",
+    "minimum-stability": "stable",
+    "require": {}
+}
