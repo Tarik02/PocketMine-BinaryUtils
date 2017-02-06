@@ -23,7 +23,6 @@ namespace pocketmine\utils;
 
 #include <rules/DataPacket.h>
 
-use pocketmine\item\Item;
 
 class BinaryStream extends \stdClass{
 
@@ -200,46 +199,6 @@ class BinaryStream extends \stdClass{
 		$this->put($uuid->toBinary());
 	}
 
-	public function getSlot(){
-		$id = $this->getVarInt();
-
-		if($id <= 0){
-			return Item::get(0, 0, 0);
-		}
-		$auxValue = $this->getVarInt();
-		$data = $auxValue >> 8;
-		$cnt = $auxValue & 0xff;
-
-		$nbtLen = $this->getLShort();
-		$nbt = "";
-
-		if($nbtLen > 0){
-			$nbt = $this->get($nbtLen);
-		}
-
-		return Item::get(
-			$id,
-			$data,
-			$cnt,
-			$nbt
-		);
-	}
-
-
-	public function putSlot(Item $item){
-		if($item->getId() === 0){
-			$this->putVarInt(0);
-			return;
-		}
-
-		$this->putVarInt($item->getId());
-		$auxValue = (($item->getDamage() ?? -1) << 8) | $item->getCount();
-		$this->putVarInt($auxValue);
-		$nbt = $item->getCompoundTag();
-		$this->putLShort(strlen($nbt));
-		$this->put($nbt);
-	}
-
 	public function getString(){
 		return $this->get($this->getUnsignedVarInt());
 	}
@@ -277,38 +236,6 @@ class BinaryStream extends \stdClass{
 	 */
 	public function putVarInt($v){
 		$this->put(Binary::writeVarInt($v));
-	}
-
-	public function getEntityId(){
-		return $this->getVarInt();
-	}
-
-	public function putEntityId($v){
-		$this->putVarInt($v);
-	}
-
-	public function getBlockCoords(&$x, &$y, &$z){
-		$x = $this->getVarInt();
-		$y = $this->getUnsignedVarInt();
-		$z = $this->getVarInt();
-	}
-
-	public function putBlockCoords($x, $y, $z){
-		$this->putVarInt($x);
-		$this->putUnsignedVarInt($y);
-		$this->putVarInt($z);
-	}
-
-	public function getVector3f(&$x, &$y, &$z){
-		$x = $this->getLFloat(4);
-		$y = $this->getLFloat(4);
-		$z = $this->getLFloat(4);
-	}
-
-	public function putVector3f($x, $y, $z){
-		$this->putLFloat($x);
-		$this->putLFloat($y);
-		$this->putLFloat($z);
 	}
 
 	public function feof(){
