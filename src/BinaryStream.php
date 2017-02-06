@@ -26,10 +26,18 @@ namespace pocketmine\binaryutils;
 
 class BinaryStream extends \stdClass{
 
+	/** @var int */
 	public $offset;
+	/** @var string */
 	public $buffer;
 
-	public function __construct($buffer = "", $offset = 0){
+	/**
+	 * BinaryStream constructor.
+	 *
+	 * @param string $buffer
+	 * @param int    $offset
+	 */
+	public function __construct(string $buffer = "", int $offset = 0){
 		$this->buffer = $buffer;
 		$this->offset = $offset;
 	}
@@ -39,20 +47,41 @@ class BinaryStream extends \stdClass{
 		$this->offset = 0;
 	}
 
-	public function setBuffer($buffer = null, $offset = 0){
+	/**
+	 * @param string $buffer
+	 * @param int    $offset
+	 */
+	public function setBuffer(string $buffer = "", int $offset = 0){
 		$this->buffer = $buffer;
-		$this->offset = (int) $offset;
+		$this->offset = $offset;
 	}
 
-	public function getOffset(){
+	/**
+	 * Returns the stream pointer.
+	 *
+	 * @return int
+	 */
+	public function getOffset() : int{
 		return $this->offset;
 	}
 
-	public function getBuffer(){
+	/**
+	 * Returns the full raw binary buffer
+	 *
+	 * @return string
+	 */
+	public function getBuffer() : string{
 		return $this->buffer;
 	}
 
-	public function get($len){
+	/**
+	 * Returns a part of the buffer starting from the current pointer up to $len chars, or to the end of the buffer if TRUE is supplied.
+	 *
+	 * @param int|bool $len If true, returns everything from the pointer to the end of the buffer, or a string of length $len bytes if an intege
+	 *
+	 * @return string
+	 */
+	public function get($len) : string{
 		if($len < 0){
 			$this->offset = strlen($this->buffer) - 1;
 			return "";
@@ -65,180 +94,295 @@ class BinaryStream extends \stdClass{
 		return $len === 1 ? $this->buffer{$this->offset++} : substr($this->buffer, ($this->offset += $len) - $len, $len);
 	}
 
-	public function put($str){
+	/**
+	 * Appends the supplied string to the end of the buffer
+	 *
+	 * @param string $str
+	 */
+	public function put(string $str){
 		$this->buffer .= $str;
 	}
 
+	/**
+	 * Reads a bool value from the next byte in the buffer.
+	 *
+	 * @return bool
+	 */
 	public function getBool() : bool{
-		return (bool) $this->getByte();
+		return Binary::readBool($this->get(1));
 	}
 
-	public function putBool($v){
-		$this->putByte((bool) $v);
+	/**
+	 * Writes a bool to the end of the buffer.
+	 *
+	 * @param bool $v
+	 */
+	public function putBool(bool $v){
+		$this->buffer .= Binary::writeBool($v);
 	}
 
+	/**
+	 * Reads an int8 value from the next byte of the buffer
+	 * @return int
+	 */
+	public function getByte() : int{
+		return ord($this->buffer{$this->offset++});
+	}
+
+	/**
+	 * Writes an int8 value to the end of the buffer in 1 byte.
+	 * @param int $v
+	 */
+	public function putByte(int $v){
+		$this->buffer .= chr($v);
+	}
+
+
+	/**
+	 * Reads a big-endian int16 value from the next 2 bytes of the buffer.
+	 * @return int
+	 */
+	public function getShort() : int{
+		return Binary::readShort($this->get(2));
+	}
+
+	/**
+	 * Reads a little-endian int16 value from the next 2 bytes of the buffer.
+	 * @return int
+	 */
+	public function getLShort() : int{
+		return Binary::readLShort($this->get(2));
+	}
+
+	/**
+	 * Reads a signed big-endian int16 value from the next 2 bytes of the buffer.
+	 * @return int
+	 */
+	public function getSignedShort() : int{
+		return Binary::readSignedShort($this->get(2));
+	}
+
+	/**
+	 * Reads a signed little-endian int16 value from the next 2 bytes of the buffer.
+	 * @return int
+	 */
+	public function getSignedLShort() : int{
+		return Binary::readSignedLShort($this->get(2));
+	}
+
+	/**
+	 * Writes a big-endian int16 value to the end of the buffer.
+	 * @param int $v
+	 */
+	public function putShort(int $v){
+		$this->buffer .= Binary::writeShort($v);
+	}
+
+	/**
+	 * Writes a little-endian int16 value to the end of the buffer.
+	 * @param int $v
+	 */
+	public function putLShort(int $v){
+		$this->buffer .= Binary::writeLShort($v);
+	}
+
+
+	/**
+	 * Reads a big-endian int24 value from the next 3 bytes of the buffer.
+	 * @return int
+	 */
+	public function getTriad() : int{
+		return Binary::readTriad($this->get(3));
+	}
+
+	/**
+	 * Reads a little-endian int24 value from the next 3 bytes of the buffer.
+	 * @return int
+	 */
+	public function getLTriad() : int{
+		return Binary::readLTriad($this->get(3));
+	}
+
+	/**
+	 * Writes a big-endian int24 value to the end of the buffer in 3 bytes.
+	 * @param int $v
+	 */
+	public function putTriad(int $v){
+		$this->buffer .= Binary::writeTriad($v);
+	}
+
+	/**
+	 * Writes a little-endian int24 value to the end of the buffer in 3 bytes.
+	 * @param int $v
+	 */
+	public function putLTriad(int $v){
+		$this->buffer .= Binary::writeLTriad($v);
+	}
+
+
+
+	/**
+	 * Reads a big-endian int32 value from the next 4 bytes of the buffer.
+	 * @return int
+	 */
+	public function getInt() : int{
+		return Binary::readInt($this->get(4));
+	}
+
+	/**
+	 * Reads a little-endian int32 value from the next 4 bytes of the buffer.
+	 * @return int
+	 */
+	public function getLInt() : int{
+		return Binary::readLInt($this->get(4));
+	}
+
+	/**
+	 * Writes a big-endian int32 value to the end of the buffer in 4 bytes.
+	 * @param int $v
+	 */
+	public function putInt(int $v){
+		$this->buffer .= Binary::writeInt($v);
+	}
+
+	/**
+	 * Writes a little-endian int32 value to the end of the buffer in 4 bytes.
+	 * @param int $v
+	 */
+	public function putLInt(int $v){
+		$this->buffer .= Binary::writeLInt($v);
+	}
+
+
+	/**
+	 * Reads a big-endian int64 value from the next 8 bytes of the buffer.
+	 *
+	 * @return int|string int, or string representation of long on 32-bit systems
+	 */
 	public function getLong(){
 		return Binary::readLong($this->get(8));
 	}
 
-	public function putLong($v){
-		$this->buffer .= Binary::writeLong($v);
-	}
-
-	public function getInt(){
-		return Binary::readInt($this->get(4));
-	}
-
-	public function putInt($v){
-		$this->buffer .= Binary::writeInt($v);
-	}
-
+	/**
+	 * Reads a little-endian int64 value from the next 8 bytes of the buffer.
+	 *
+	 * @return int|string int, or string representation of long on 32-bit systems
+	 */
 	public function getLLong(){
 		return Binary::readLLong($this->get(8));
 	}
 
+	/**
+	 * Writes a big-endian int64 value to the end of the buffer in 8 bytes.
+	 *
+	 * @param int|float|string $v This may be an float or a string on 32-bit systems.
+	 */
+	public function putLong($v){
+		$this->buffer .= Binary::writeLong($v);
+	}
+
+	/**
+	 * Writes a little-endian int64 value to the buffer in 8 bytes.
+	 *
+	 * @param int|float|string $v This may be an float or a string on 32-bit systems.
+	 */
 	public function putLLong($v){
 		$this->buffer .= Binary::writeLLong($v);
 	}
 
-	public function getLInt(){
-		return Binary::readLInt($this->get(4));
-	}
 
-	public function putLInt($v){
-		$this->buffer .= Binary::writeLInt($v);
-	}
-
-	public function getSignedShort(){
-		return Binary::readSignedShort($this->get(2));
-	}
-
-	public function putShort($v){
-		$this->buffer .= Binary::writeShort($v);
-	}
-
-	public function getShort(){
-		return Binary::readShort($this->get(2));
-	}
-
-	public function putSignedShort($v){
-		$this->buffer .= Binary::writeShort($v);
-	}
-
-	public function getFloat(int $accuracy = -1){
+	/**
+	 * Reads a big-endian float value from the next 4 bytes of the buffer.
+	 *
+	 * @param int $accuracy The number of decimal places to round the resulting value to.
+	 * @return float
+	 */
+	public function getFloat(int $accuracy = -1) : float{
 		return Binary::readFloat($this->get(4), $accuracy);
 	}
 
-	public function putFloat($v){
-		$this->buffer .= Binary::writeFloat($v);
-	}
-
-	public function getLShort($signed = true){
-		return $signed ? Binary::readSignedLShort($this->get(2)) : Binary::readLShort($this->get(2));
-	}
-
-	public function putLShort($v){
-		$this->buffer .= Binary::writeLShort($v);
-	}
-
-	public function getLFloat(int $accuracy = -1){
+	/**
+	 * Reads a little-endian float value from the next 4 bytes of the buffer.
+	 *
+	 * @param int $accuracy The number of decimal places to round the resulting value to.
+	 * @return float
+	 */
+	public function getLFloat(int $accuracy = -1) : float{
 		return Binary::readLFloat($this->get(4), $accuracy);
 	}
 
-	public function putLFloat($v){
+	/**
+	 * Writes a big-endian float value to the end of the buffer in 4 bytes.
+	 *
+	 * @param float $v
+	 */
+	public function putFloat(float $v){
+		$this->buffer .= Binary::writeFloat($v);
+	}
+
+	/**
+	 * Writes a little-endian float value to the end of the buffer in 4 bytes.
+	 *
+	 * @param float $v
+	 */
+	public function putLFloat(float $v){
 		$this->buffer .= Binary::writeLFloat($v);
 	}
 
-
-	public function getTriad(){
-		return Binary::readTriad($this->get(3));
-	}
-
-	public function putTriad($v){
-		$this->buffer .= Binary::writeTriad($v);
-	}
-
-
-	public function getLTriad(){
-		return Binary::readLTriad($this->get(3));
-	}
-
-	public function putLTriad($v){
-		$this->buffer .= Binary::writeLTriad($v);
-	}
-
-	public function getByte(){
-		return ord($this->buffer{$this->offset++});
-	}
-
-	public function putByte($v){
-		$this->buffer .= chr($v);
-	}
-
-	public function getDataArray($len = 10){
-		$data = [];
-		for($i = 1; $i <= $len and !$this->feof(); ++$i){
-			$data[] = $this->get($this->getTriad());
-		}
-
-		return $data;
-	}
-
-	public function putDataArray(array $data = []){
-		foreach($data as $v){
-			$this->putTriad(strlen($v));
-			$this->put($v);
-		}
-	}
-
+	/**
+	 * Reads an encoded UUID from the next 16 bytes of the buffer.
+	 * @return UUID
+	 */
 	public function getUUID(){
 		return UUID::fromBinary($this->get(16));
 	}
 
+	/**
+	 * Writes a UUID to the end of the buffer in 16 bytes.
+	 * @param UUID $uuid
+	 */
 	public function putUUID(UUID $uuid){
 		$this->put($uuid->toBinary());
 	}
 
-	public function getString(){
-		return $this->get($this->getUnsignedVarInt());
-	}
-
-	public function putString($v){
-		$this->putUnsignedVarInt(strlen($v));
-		$this->put($v);
-	}
-
-	//TODO: varint64
 
 	/**
-	 * Reads an unsigned varint32 from the stream.
+	 * Reads an unsigned variable-length integer from the buffer.
+	 * @return int|string int, or string representation of long on 32-bit systems
 	 */
 	public function getUnsignedVarInt(){
 		return Binary::readUnsignedVarInt($this);
 	}
 
 	/**
-	 * Writes an unsigned varint32 to the stream.
-	 */
-	public function putUnsignedVarInt($v){
-		$this->put(Binary::writeUnsignedVarInt($v));
-	}
-
-	/**
-	 * Reads a signed varint32 from the stream.
+	 * Reads a signed (zigzagged) variable-length integer from the buffer.
+	 * @return int|string int, or string representation of long on 32-bit systems
 	 */
 	public function getVarInt(){
 		return Binary::readVarInt($this);
 	}
 
 	/**
-	 * Writes a signed varint32 to the stream.
+	 * Writes an unsigned variable-length integer to the buffer.
+	 * @param int|float|string $v This may be an float or a string on 32-bit systems.
+	 */
+	public function putUnsignedVarInt($v){
+		$this->put(Binary::writeUnsignedVarInt($v));
+	}
+
+	/**
+	 * Writes an signed (zigzagged) variable-length integer to the buffer.
+	 * @param int|float|string $v This may be an float or a string on 32-bit systems.
 	 */
 	public function putVarInt($v){
 		$this->put(Binary::writeVarInt($v));
 	}
 
-	public function feof(){
+	/**
+	 * Returns whether there is any more data left in the stream to read.
+	 * @return bool
+	 */
+	public function feof() : bool{
 		return !isset($this->buffer{$this->offset});
 	}
 }
